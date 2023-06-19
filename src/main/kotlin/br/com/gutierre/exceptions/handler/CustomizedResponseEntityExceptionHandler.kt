@@ -1,6 +1,7 @@
 package br.com.gutierre.exceptions.handler
 
 import br.com.gutierre.exceptions.ExceptionResponse
+import br.com.gutierre.exceptions.RequiredObjectIsNullException
 import br.com.gutierre.exceptions.ResourceNotFoundException
 import br.com.gutierre.exceptions.UnsupportedMathOperationException
 import org.springframework.http.HttpStatus
@@ -38,6 +39,16 @@ class CustomizedResponseEntityExceptionHandler: ResponseEntityExceptionHandler()
 
     @ExceptionHandler(ResourceNotFoundException::class)
     fun handlerResourceNotFoundException(ex: Exception, request: WebRequest): ResponseEntity<ExceptionResponse> {
+        val exceptionResponse = ExceptionResponse(
+            Date(),
+            ex.message,
+            request.getDescription(false)
+        )
+        return ResponseEntity<ExceptionResponse>(exceptionResponse, HttpStatus.NOT_FOUND)
+    }
+
+    @ExceptionHandler(RequiredObjectIsNullException::class)
+    fun handlerRequiredObjectIsNullException(ex: Exception, request: WebRequest): ResponseEntity<ExceptionResponse> {
         val exceptionResponse = ExceptionResponse(
             Date(),
             ex.message,

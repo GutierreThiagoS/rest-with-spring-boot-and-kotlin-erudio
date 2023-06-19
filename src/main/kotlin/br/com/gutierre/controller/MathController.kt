@@ -5,6 +5,7 @@ import br.com.gutierre.converters.NumberConverter
 import br.com.gutierre.exceptions.UnsupportedMathOperationException
 import br.com.gutierre.math.SimpleMath
 import br.com.gutierre.model.response.ResponseMath
+import br.com.gutierre.util.MediaType
 import org.springframework.web.bind.annotation.*
 import java.util.concurrent.atomic.AtomicLong
 
@@ -14,7 +15,10 @@ class MathController {
 
     private val math: SimpleMath = SimpleMath()
 
-    @RequestMapping(value = ["/sum/{numberOne}/{numberTwo}"])
+    @RequestMapping(
+        value = ["/sum/{numberOne}/{numberTwo}"],
+        produces = [MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.APPLICATION_YML]
+    )
     fun sum(
         @PathVariable(value = "numberOne") numberOne: String?,
         @PathVariable(value = "numberTwo") numberTwo: String?
