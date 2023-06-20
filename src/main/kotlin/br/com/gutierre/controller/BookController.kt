@@ -26,7 +26,7 @@ class BookController {
     @Operation(
         summary = "Finds all Books",
         description = "Finds all Book",
-        tags = ["Books"],
+        tags = ["Book"],
         responses = [
             ApiResponse(
                 description = "Success",
@@ -84,7 +84,7 @@ class BookController {
     @Operation(
         summary = "Find a Book",
         description = "Find a Book",
-        tags = ["People"],
+        tags = ["Book"],
         responses = [
             ApiResponse(
                 description = "Success",
@@ -142,7 +142,7 @@ class BookController {
     @Operation(
         summary = "Adds a new Book",
         description = "Add a new Book",
-        tags = ["People"],
+        tags = ["Book"],
         responses = [
             ApiResponse(
                 description = "Success",
@@ -186,7 +186,7 @@ class BookController {
     @Operation(
         summary = "Updates a Book`s information",
         description = "Updates a Book`s information",
-        tags = ["People"],
+        tags = ["Book"],
         responses = [
             ApiResponse(
                 description = "Success",
@@ -244,7 +244,7 @@ class BookController {
     @Operation(
         summary = "Deletes a Book",
         description = "Deletes a Book",
-        tags = ["People"],
+        tags = ["Book"],
         responses = [
             ApiResponse(
                 description = "No Content",
