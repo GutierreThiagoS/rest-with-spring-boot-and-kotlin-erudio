@@ -1,5 +1,7 @@
 package br.com.gutierre.integrationtestes.controller.cors.withjson
 
+import br.com.gutierre.data.vo.v1.AccountCredentialVO
+import br.com.gutierre.data.vo.v1.TokenVO
 import br.com.gutierre.integrationtestes.TestConfigs
 import br.com.gutierre.integrationtestes.testecontainers.AbstractIntegrationTest
 import br.com.gutierre.integrationtestes.vo.PersonVO
@@ -23,12 +25,38 @@ class PersonControllerCorsWithJson: AbstractIntegrationTest() {
 	private lateinit var specification: RequestSpecification
 	private lateinit var objectMapper: ObjectMapper
 	private lateinit var person: PersonVO
+	private lateinit var token: String
 
 	@BeforeAll
 	fun setupTests() {
 		objectMapper = ObjectMapper()
 		objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
 		person = PersonVO()
+		token = ""
+	}
+
+	@Test
+	@Order(0)
+	fun authorization() {
+
+		val user = AccountCredentialVO(
+			userName = "gutierre",
+			password = "admin123"
+		)
+
+		token = RestAssured.given().
+				basePath("/auth/signin")
+			.port(TestConfigs.SERVER_PORT)
+				.contentType(TestConfigs.CONTENT_TYPE_JSON)
+				.body(user)
+			.`when`()
+				.post()
+					.then()
+				.statusCode(200)
+					.extract()
+					.body()
+				.`as`(TokenVO::class.java)
+					.accessToken!!
 
 	}
 
@@ -41,7 +69,64 @@ class PersonControllerCorsWithJson: AbstractIntegrationTest() {
 		specification = RequestSpecBuilder()
 				.addHeader(
 					TestConfigs.HEADER_PARAM_ORIGIN,
-					TestConfigs.ORIGIN_GUTIERRE
+					TestConfigs.ORIGIN_LOCALHOST
+				)
+				.addHeader(
+					TestConfigs.HEADER_PARAM_AUTHORIZATION,
+					"Bearer $token"
+				)
+				.setBasePath("/api/person/v1")
+				.setPort(TestConfigs.SERVER_PORT)
+				.addFilter(RequestLoggingFilter(LogDetail.ALL))
+				.addFilter(ResponseLoggingFilter(LogDetail.ALL))
+			.build()
+
+		val content = RestAssured.given()
+			.spec(specification)
+			.contentType(TestConfigs.CONTENT_TYPE_JSON)
+			.body(person)
+			.`when`()
+			.post()
+			.then()
+			.statusCode(200)
+			.extract()
+			.body()
+			.asString()
+
+		val createdPerson = objectMapper.readValue(
+			content,
+			PersonVO::class.java
+		)
+		Assertions.assertNotNull(createdPerson.id)
+		Assertions.assertNotNull(createdPerson.firstName)
+		Assertions.assertNotNull(createdPerson.lastName)
+		Assertions.assertNotNull(createdPerson.address)
+		Assertions.assertNotNull(createdPerson.gender)
+
+		Assertions.assertTrue(createdPerson.id > 0)
+
+		Assertions.assertEquals("Gutierre", createdPerson.firstName)
+		Assertions.assertEquals("Guimaraes", createdPerson.lastName)
+		Assertions.assertEquals("Brasilia, DF, Brasil", createdPerson.address)
+		Assertions.assertEquals("Male", createdPerson.gender)
+
+		Assertions.assertTrue(content.contains("Swagger UI"))
+	}
+
+	@Test
+	@Order(2)
+	fun testCreateWithWrongOrigin() {
+
+		mockPerson()
+
+		specification = RequestSpecBuilder()
+				.addHeader(
+					TestConfigs.HEADER_PARAM_ORIGIN,
+					TestConfigs.ORIGIN_LOCALHOST
+				)
+				.addHeader(
+					TestConfigs.HEADER_PARAM_AUTHORIZATION,
+					"Bearer $token"
 				)
 				.setBasePath("/api/person/v1")
 				.setPort(TestConfigs.SERVER_PORT)
