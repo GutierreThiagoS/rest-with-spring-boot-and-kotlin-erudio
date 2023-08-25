@@ -1,9 +1,6 @@
 package br.com.gutierre.exceptions.handler
 
-import br.com.gutierre.exceptions.ExceptionResponse
-import br.com.gutierre.exceptions.RequiredObjectIsNullException
-import br.com.gutierre.exceptions.ResourceNotFoundException
-import br.com.gutierre.exceptions.UnsupportedMathOperationException
+import br.com.gutierre.exceptions.*
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ControllerAdvice
@@ -55,5 +52,15 @@ class CustomizedResponseEntityExceptionHandler: ResponseEntityExceptionHandler()
             request.getDescription(false)
         )
         return ResponseEntity<ExceptionResponse>(exceptionResponse, HttpStatus.NOT_FOUND)
+    }
+
+    @ExceptionHandler(InvalidJwtAuthenticationException::class)
+    fun handlerInvalidJwtAuthenticationException(ex: Exception, request: WebRequest): ResponseEntity<ExceptionResponse> {
+        val exceptionResponse = ExceptionResponse(
+            Date(),
+            ex.message,
+            request.getDescription(false)
+        )
+        return ResponseEntity<ExceptionResponse>(exceptionResponse, HttpStatus.FORBIDDEN)
     }
 }
